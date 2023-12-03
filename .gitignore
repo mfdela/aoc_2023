@@ -1,0 +1,7 @@
+input.txt
+
+# Rust stuff
+debug/
+target/
+Cargo.lock
+**/*.rs.bk
