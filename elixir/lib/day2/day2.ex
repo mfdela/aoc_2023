@@ -20,14 +20,17 @@ defmodule Aoc2023.Day2 do
         valid =
           for game <- games, reduce: true do
             acc ->
-              [r] = Regex.run(~r/(\d+)\s+red/, game, capture: :all_but_first) || ["0"]
-              [g] = Regex.run(~r/(\d+)\s+green/, game, capture: :all_but_first) || ["0"]
-              [b] = Regex.run(~r/(\d+)\s+blue/, game, capture: :all_but_first) || ["0"]
+              colours =
+                Regex.named_captures(
+                  ~r/(?=.*\b(?<red>\d+)\s+red\b)?(?=.*\b(?<blue>\d+)\s+blue\b)?(?=.*\b(?<green>\d+)\s+green\b)?.*/,
+                  game
+                )
+                |> clean_map_colours()
 
               cond do
-                String.to_integer(r) <= conf[:red] and
-                  String.to_integer(g) <= conf[:green] and
-                  String.to_integer(b) <= conf[:blue] and acc ->
+                colours[:red] <= conf[:red] and
+                  colours[:green] <= conf[:green] and
+                  colours[:blue] <= conf[:blue] and acc ->
                   true
 
                 true ->
@@ -52,44 +55,38 @@ defmodule Aoc2023.Day2 do
         games = String.split(comb, ";")
 
         min_set =
-          for game <- games, reduce: [0, 0, 0] do
+          for game <- games, reduce: %{:red => 0, :green => 0, :blue => 0} do
             acc ->
-              [min_r, min_g, min_b] = acc
-              [r] = Regex.run(~r/(\d+)\s+red/, game, capture: :all_but_first) || ["0"]
-              [g] = Regex.run(~r/(\d+)\s+green/, game, capture: :all_but_first) || ["0"]
-              [b] = Regex.run(~r/(\d+)\s+blue/, game, capture: :all_but_first) || ["0"]
+              colours =
+                Regex.named_captures(
+                  ~r/(?=.*\b(?<red>\d+)\s+red\b)?(?=.*\b(?<blue>\d+)\s+blue\b)?(?=.*\b(?<green>\d+)\s+green\b)?.*/,
+                  game
+                )
+                |> clean_map_colours()
 
-              new_r =
-                cond do
-                  String.to_integer(r) > min_r ->
-                    String.to_integer(r)
+              for c <- [:red, :green, :blue], reduce: acc do
+                acc ->
+                  cond do
+                    colours[c] > acc[c] ->
+                      Map.put(acc, c, colours[c])
 
-                  true ->
-                    min_r
-                end
-
-              new_g =
-                cond do
-                  String.to_integer(g) > min_g ->
-                    String.to_integer(g)
-
-                  true ->
-                    min_g
-                end
-
-              new_b =
-                cond do
-                  String.to_integer(b) > min_b ->
-                    String.to_integer(b)
-
-                  true ->
-                    min_b
-                end
-
-              [new_r, new_g, new_b]
+                    true ->
+                      acc
+                  end
+              end
           end
 
-        acc + Enum.reduce(min_set, 1, fn x, acc -> x * acc end)
+        acc + Enum.reduce(min_set, 1, fn {_, v}, acc -> v * acc end)
+    end
+  end
+
+  defp clean_map_colours(map) do
+    for {c, v} <- map, reduce: %{} do
+      acc ->
+        case v do
+          "" -> Map.put(acc, String.to_atom(c), 0)
+          _ -> Map.put(acc, String.to_atom(c), String.to_integer(v))
+        end
     end
   end
 end
