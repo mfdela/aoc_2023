@@ -1,12 +1,12 @@
 defmodule Aoc2023.Day1 do
   def part1(part \\ :ex1) do
-    input = Aoc2023.read_input("day1", part)
+    input = Aoc2023.day_from_module(__MODULE__) |> Aoc2023.read_input(part)
 
     process(input, false)
   end
 
   def part2(part \\ :ex2) do
-    input = Aoc2023.read_input("day1", part)
+    input = Aoc2023.day_from_module(__MODULE__) |> Aoc2023.read_input(part)
     process(input, true)
   end
 

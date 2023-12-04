@@ -1,13 +1,13 @@
 defmodule Aoc2023.Day2 do
   def part1(part \\ :ex1) do
-    input = Aoc2023.read_input("day2", part)
+    input = Aoc2023.day_from_module(__MODULE__) |> Aoc2023.read_input(part)
     # rgb
     conf = %{:red => 12, :green => 13, :blue => 14}
     process1(input, conf)
   end
 
   def part2(part \\ :ex2) do
-    input = Aoc2023.read_input("day2", part)
+    input = Aoc2023.day_from_module(__MODULE__) |> Aoc2023.read_input(part)
     process2(input)
   end
 
@@ -51,7 +51,7 @@ defmodule Aoc2023.Day2 do
   def process2(input) do
     for s <- input, reduce: 0 do
       acc ->
-        [gameid, comb] = Regex.run(~r/Game\s+(\d+):\s+(.*)/, s, capture: :all_but_first)
+        [_, comb] = Regex.run(~r/Game\s+(\d+):\s+(.*)/, s, capture: :all_but_first)
         games = String.split(comb, ";")
 
         min_set =
