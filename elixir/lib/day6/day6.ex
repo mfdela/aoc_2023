@@ -49,22 +49,10 @@ defmodule Aoc2023.Day6 do
         # distance = speed * t_travel = t_hold * (T - hold)
         # t_hold * (T - hold) > S, t_hold < T
         # -t_h^2 + t_h * T -S > 0, t_hold < T
-        first_sol = floor((t - :math.sqrt(t * t - 4 * d)) / 2.0 + 1)
-        second_sol = ceil((t + :math.sqrt(t * t - 4 * d)) / 2.0 - 1)
+        first_sol = floor((t - :math.sqrt(t * t - 4 * d)) / 2.0)
+        second_sol = ceil((t + :math.sqrt(t * t - 4 * d)) / 2.0)
 
-        start =
-          cond do
-            first_sol < 0 -> 1
-            true -> first_sol
-          end
-
-        stop =
-          cond do
-            second_sol <= t -> second_sol
-            true -> true
-          end
-
-        acc * (stop - start + 1)
+        acc * Enum.max([second_sol - first_sol - 1, 0])
     end
   end
 end
