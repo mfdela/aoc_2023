@@ -1,18 +1,19 @@
 defmodule Aoc2023.Day4 do
+  def etl_input(part),
+    do:
+      Aoc2023.day_from_module(__MODULE__)
+      |> Aoc2023.read_input(part)
+      |> process()
+      |> count_matching()
+
   def part1(part \\ :ex1) do
-    Aoc2023.day_from_module(__MODULE__)
-    |> Aoc2023.read_input(part)
-    |> process()
-    |> count_matching()
+    etl_input(part)
     |> Enum.filter(fn {_id, count} -> count != 0 end)
     |> Enum.reduce(0, fn {_id, count}, acc -> acc + 2 ** (count - 1) end)
   end
 
   def part2(part \\ :ex2) do
-    Aoc2023.day_from_module(__MODULE__)
-    |> Aoc2023.read_input(part)
-    |> process()
-    |> count_matching()
+    etl_input(part)
     |> copies()
     |> make_points(1)
     |> Map.values()

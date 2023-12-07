@@ -1,16 +1,15 @@
 defmodule Aoc2023.Day3 do
+  def etl_input(part),
+    do: Aoc2023.day_from_module(__MODULE__) |> Aoc2023.read_input(part) |> process()
+
   def part1(part \\ :ex1) do
-    Aoc2023.day_from_module(__MODULE__)
-    |> Aoc2023.read_input(part)
-    |> process()
+    etl_input(part)
     |> find_part_numbers()
     |> Enum.sum()
   end
 
   def part2(part \\ :ex2) do
-    Aoc2023.day_from_module(__MODULE__)
-    |> Aoc2023.read_input(part)
-    |> process()
+    etl_input(part)
     |> find_gears()
     |> Enum.sum()
   end
