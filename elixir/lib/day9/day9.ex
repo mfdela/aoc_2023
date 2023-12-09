@@ -27,10 +27,7 @@ defmodule Aoc2023.Day9 do
     if Enum.all?(list, &(&1 == 0)) do
       list_of_diff
     else
-      diff =
-        for [n1, n2] <- Enum.chunk_every(list, 2, 1) do
-          n2 - n1
-        end
+      diff = Enum.chunk_every(list, 2, 1, :discard) |> Enum.map(fn [a, b] -> b - a end)
 
       differences(diff, list_of_diff ++ [diff])
     end
