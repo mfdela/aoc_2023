@@ -5,14 +5,15 @@ defmodule Aoc2023.Day9 do
   def part1(part \\ :ex1) do
     for l <- etl_input(part), reduce: 0 do
       acc ->
-        acc + (differences(l, [l]) |> predict(1))
+        acc + (differences(l, [l]) |> predict())
     end
   end
 
   def part2(part \\ :ex2) do
     for l <- etl_input(part), reduce: 0 do
       acc ->
-        acc + (differences(l, [l]) |> predict(2))
+        r = Enum.reverse(l)
+        acc + (differences(r, [r]) |> predict())
     end
   end
 
@@ -35,16 +36,9 @@ defmodule Aoc2023.Day9 do
     end
   end
 
-  def predict(list_of_diff, part) do
+  def predict(list_of_diff) do
     # we don't need the [0, 0, ... 0] array
     [_ | rest] = Enum.reverse(list_of_diff)
-
-    for l <- rest, reduce: 0 do
-      acc ->
-        case part do
-          1 -> acc + List.last(l)
-          2 -> List.first(l) - acc
-        end
-    end
+    Enum.reduce(rest, 0, &(&2 + List.last(&1)))
   end
 end
