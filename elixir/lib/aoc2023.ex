@@ -1,8 +1,4 @@
 defmodule Aoc2023 do
-  @moduledoc """
-  Documentation for `Aoc2023`.
-  """
-
   def day_from_module(module_name) do
     module_name
     |> Atom.to_string()
@@ -21,5 +17,9 @@ defmodule Aoc2023 do
 
   def read_input(day, part \\ :ex1) do
     Aoc2023.read_input_raw(day, part) |> String.split("\n", trim: true)
+  end
+
+  def transpose(mat) do
+    Enum.zip_with(mat, &Function.identity/1)
   end
 end

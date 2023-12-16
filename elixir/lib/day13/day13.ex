@@ -7,7 +7,7 @@ defmodule Aoc2023.Day13 do
     for m <- etl_input(part), reduce: 0 do
       acc ->
         horiz = matrix_horizontal_symmetry(m, 1) |> Enum.reduce(0, &(&2 + &1 * 100))
-        vert = m |> transpose() |> matrix_horizontal_symmetry(1) |> Enum.sum()
+        vert = m |> Aoc2023.transpose() |> matrix_horizontal_symmetry(1) |> Enum.sum()
         acc + horiz + vert
     end
   end
@@ -19,7 +19,7 @@ defmodule Aoc2023.Day13 do
           matrix_horizontal_symmetry(m, 2)
           |> Enum.reduce(0, &(&2 + &1 * 100))
 
-        vert = m |> transpose() |> matrix_horizontal_symmetry(2) |> Enum.sum()
+        vert = m |> Aoc2023.transpose() |> matrix_horizontal_symmetry(2) |> Enum.sum()
         acc + horiz + vert
     end
   end
@@ -28,10 +28,6 @@ defmodule Aoc2023.Day13 do
     for p <- String.split(input, "\n\n", trim: true) do
       for line <- p |> String.split("\n", trim: true), do: String.graphemes(line)
     end
-  end
-
-  def transpose(mat) do
-    Enum.zip_with(mat, &Function.identity/1)
   end
 
   def matrix_horizontal_symmetry(mat, part) do
