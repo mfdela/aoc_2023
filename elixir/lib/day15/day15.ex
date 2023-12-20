@@ -35,11 +35,10 @@ defmodule Aoc2023.Day15 do
   end
 
   def hash(inst) do
-    for c <- String.graphemes(inst), reduce: 0 do
-      acc ->
-        <<v::utf8>> = c
-        rem((acc + v) * 17, 256)
-    end
+    String.to_charlist(inst)
+    |> Enum.reduce(0, fn code, acc ->
+      rem((acc + code) * 17, 256)
+    end)
   end
 
   def box_processing(input, map) do
