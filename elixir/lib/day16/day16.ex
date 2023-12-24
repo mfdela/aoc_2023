@@ -14,7 +14,7 @@ defmodule Aoc2023.Day16 do
 
   def part2(part \\ :ex2) do
     map = etl_input(part)
-    {n_rows, n_cols} = map_bounds(map)
+    {n_rows, n_cols} = Aoc2023.map_bounds(map)
 
     for r <- 0..n_rows,
         c <- 0..n_cols,
@@ -140,13 +140,8 @@ defmodule Aoc2023.Day16 do
     end
   end
 
-  def map_bounds(map) do
-    {map |> Map.keys() |> Enum.map(fn {r, _} -> r end) |> Enum.max(),
-     map |> Map.keys() |> Enum.map(fn {_, c} -> c end) |> Enum.max()}
-  end
-
   def traverse_path(map, pos) do
-    {n_rows, n_cols} = map_bounds(map)
+    {n_rows, n_cols} = Aoc2023.map_bounds(map)
     traverse_path(map, pos, MapSet.new(pos), n_rows, n_cols)
   end
 

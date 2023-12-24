@@ -30,4 +30,10 @@ defmodule Aoc2023 do
   def transpose(mat) do
     Enum.zip_with(mat, &Function.identity/1)
   end
+
+  def map_bounds(map) do
+    {map |> Map.keys() |> Enum.map(fn {r, _} -> r end) |> Enum.max(),
+     map |> Map.keys() |> Enum.map(fn {_, c} -> c end) |> Enum.max()}
+  end
+
 end
