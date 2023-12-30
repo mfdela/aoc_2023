@@ -8,10 +8,6 @@ defmodule Aoc2023.Day17 do
     end_v = Aoc2023.map_bounds(mat)
 
     find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 0, 3)
-    |> then(fn {_q, d} -> d end)
-    |> Enum.filter(fn {{r, c, _, _, _}, _val} -> {r, c} == end_v end)
-    |> Enum.map(fn {_, val} -> val end)
-    |> Enum.min()
   end
 
   def part2(part \\ :ex2) do
@@ -19,10 +15,6 @@ defmodule Aoc2023.Day17 do
     end_v = Aoc2023.map_bounds(mat)
 
     find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 4, 10)
-    |> then(fn {_q, d} -> d end)
-    |> Enum.filter(fn {{r, c, _, _, n}, _val} -> {r, c} == end_v and n >= 4 end)
-    |> Enum.map(fn {_, val} -> val end)
-    |> Enum.min()
   end
 
   def process(input) do
@@ -39,36 +31,42 @@ defmodule Aoc2023.Day17 do
   end
 
   def find_path(mat, start_v, end_v, dim, n_min, n_max) do
-    find_path(mat, end_v, {[start_v], %{start_v => 0}}, MapSet.new([]), dim, n_min, n_max)
+    find_path(
+      mat,
+      end_v,
+      PriorityQueue.new() |> PriorityQueue.push(Tuple.append(start_v, 0), 0),
+      MapSet.new([]),
+      dim,
+      n_min,
+      n_max
+    )
   end
 
-  def find_path(_mat, _end_v, state = {[], _dist}, _visited, _dim, _n_min, _n_max), do: state
+  def find_path(mat, end_v, queue, visited, dim, n_min, n_max) do
+    {{:value, u}, pq} = PriorityQueue.pop(queue)
+    {r, c, dr, d, n, cost} = u
 
-  def find_path(mat, end_v, state = {queue, dist}, visited, dim, n_min, n_max) do
-    u = Aoc2023.PrioQ.extract_min(queue, dist)
-    {r, c, _, _, n} = u
-
-    {new_queue, new_dist} =
+    new_pq =
       cond do
-        u in visited ->
-          {List.delete(queue, u), dist}
+        {r, c, dr, d, n} in visited ->
+          pq
 
         true ->
-          {List.delete(queue, u), dist}
+          pq
           |> add_same_dir(mat, u, dim, n_max)
           |> add_all_dir(mat, u, dim, n_min)
       end
 
     cond do
       {r, c} == end_v and n >= n_min ->
-        state
+        cost
 
       true ->
         find_path(
           mat,
           end_v,
-          {new_queue, new_dist},
-          MapSet.put(visited, u),
+          new_pq,
+          MapSet.put(visited, {r, c, dr, d, n}),
           dim,
           n_min,
           n_max
@@ -80,50 +78,33 @@ defmodule Aoc2023.Day17 do
     Enum.reject(l, fn {x, y} -> x < 0 or y < 0 or x > n_rows or y > n_cols end)
   end
 
-  def add_same_dir(state = {queue, dist}, mat, u = {r, c, dr, dc, n}, dim, n_max)
+  def add_same_dir(queue, mat, _u = {r, c, dr, dc, n, cost}, dim, n_max)
       when n < n_max and {dr, dc} != {0, 0} do
     case [{r + dr, c + dc}] |> reject_out_of_bound(dim) do
       [] ->
-        state
+        queue
 
       _ ->
-        {[{r + dr, c + dc, dr, dc, n + 1} | queue],
-         Map.update(
-           dist,
-           {r + dr, c + dc, dr, dc, n + 1},
-           dist[u] + mat[{r + dr, c + dc}],
-           fn v ->
-             cond do
-               v < dist[u] + mat[{r + dr, c + dc}] -> v
-               true -> dist[u] + mat[{r + dr, c + dc}]
-             end
-           end
-         )}
+        dist = cost + mat[{r + dr, c + dc}]
+        PriorityQueue.push(queue, {r + dr, c + dc, dr, dc, n + 1, dist}, dist)
     end
   end
 
-  def add_same_dir(state, _mat, _u, _dim, _n_max), do: state
+  def add_same_dir(queue, _mat, _u, _dim, _n_max), do: queue
 
-  def add_all_dir(state, mat, u = {r, c, dr, dc, n}, dim, n_min)
+  def add_all_dir(queue, mat, _u = {r, c, dr, dc, n, cost}, dim, n_min)
       when n >= n_min or {dr, dc} == {0, 0} do
     for {nr, nc} <-
           [{0, 1}, {1, 0}, {0, -1}, {-1, 0}]
           |> Enum.filter(fn {x, y} -> {x, y} != {dr, dc} and {x, y} != {-dr, -dc} end)
           |> Enum.map(fn {x, y} -> {x + r, y + c} end)
           |> reject_out_of_bound(dim),
-        reduce: state do
+        reduce: queue do
       acc ->
-        {q, d} = acc
-
-        {[{nr, nc, nr - r, nc - c, 1} | q],
-         Map.update(d, {nr, nc, nr - r, nc - c, 1}, d[u] + mat[{nr, nc}], fn v ->
-           cond do
-             v < d[u] + mat[{nr, nc}] -> v
-             true -> d[u] + mat[{nr, nc}]
-           end
-         end)}
+        dist = cost + mat[{nr, nc}]
+        PriorityQueue.push(acc, {nr, nc, nr - r, nc - c, 1, dist}, dist)
     end
   end
 
-  def add_all_dir(state, _mat, _u, _dim, _n_min), do: state
+  def add_all_dir(queue, _mat, _u, _dim, _n_min), do: queue
 end
