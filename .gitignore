@@ -1,7 +1,10 @@
 input.txt
+# Elixir 
+erl_crash.dump
 
-# Rust stuff
+# Rust 
 debug/
 target/
 Cargo.lock
 **/*.rs.bk
+
