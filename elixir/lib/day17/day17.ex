@@ -7,7 +7,7 @@ defmodule Aoc2023.Day17 do
     mat = etl_input(part)
     end_v = Aoc2023.map_bounds(mat)
 
-    find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 1)
+    find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 0, 3)
     |> then(fn {_q, d} -> d end)
     |> Enum.filter(fn {{r, c, _, _, _}, _val} -> {r, c} == end_v end)
     |> Enum.map(fn {_, val} -> val end)
@@ -18,7 +18,7 @@ defmodule Aoc2023.Day17 do
     mat = etl_input(part)
     end_v = Aoc2023.map_bounds(mat)
 
-    find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 2)
+    find_path(mat, {0, 0, 0, 0, 0}, end_v, end_v, 4, 10)
     |> then(fn {_q, d} -> d end)
     |> Enum.filter(fn {{r, c, _, _, n}, _val} -> {r, c} == end_v and n >= 4 end)
     |> Enum.map(fn {_, val} -> val end)
@@ -38,13 +38,13 @@ defmodule Aoc2023.Day17 do
     |> Map.new()
   end
 
-  def find_path(mat, start_v, end_v, dim, part) do
-    find_path(mat, end_v, {[start_v], %{start_v => 0}}, MapSet.new([]), dim, part)
+  def find_path(mat, start_v, end_v, dim, n_min, n_max) do
+    find_path(mat, end_v, {[start_v], %{start_v => 0}}, MapSet.new([]), dim, n_min, n_max)
   end
 
-  def find_path(_mat, _end_v, state = {[], _dist}, _visited, _dim, _part), do: state
+  def find_path(_mat, _end_v, state = {[], _dist}, _visited, _dim, _n_min, _n_max), do: state
 
-  def find_path(mat, end_v, state = {queue, dist}, visited, dim, part) do
+  def find_path(mat, end_v, state = {queue, dist}, visited, dim, n_min, n_max) do
     u = Aoc2023.PrioQ.extract_min(queue, dist)
     {r, c, _, _, n} = u
 
@@ -53,22 +53,14 @@ defmodule Aoc2023.Day17 do
         u in visited ->
           {List.delete(queue, u), dist}
 
-        part == 1 ->
+        true ->
           {List.delete(queue, u), dist}
-          |> add_same_dir(mat, u, dim, 3)
-          |> add_all_dir(mat, u, dim, 1)
-
-        part == 2 ->
-          {List.delete(queue, u), dist}
-          |> add_same_dir(mat, u, dim, 10)
-          |> add_all_dir(mat, u, dim, 2)
+          |> add_same_dir(mat, u, dim, n_max)
+          |> add_all_dir(mat, u, dim, n_min)
       end
 
     cond do
-      {r, c} == end_v and part == 1 ->
-        state
-
-      {r, c} == end_v and n >= 4 and part == 2 ->
+      {r, c} == end_v and n >= n_min ->
         state
 
       true ->
@@ -78,7 +70,8 @@ defmodule Aoc2023.Day17 do
           {new_queue, new_dist},
           MapSet.put(visited, u),
           dim,
-          part
+          n_min,
+          n_max
         )
     end
   end
@@ -87,8 +80,8 @@ defmodule Aoc2023.Day17 do
     Enum.reject(l, fn {x, y} -> x < 0 or y < 0 or x > n_rows or y > n_cols end)
   end
 
-  def add_same_dir(state = {queue, dist}, mat, u = {r, c, dr, dc, n}, dim, lim)
-      when n < lim and {dr, dc} != {0, 0} do
+  def add_same_dir(state = {queue, dist}, mat, u = {r, c, dr, dc, n}, dim, n_max)
+      when n < n_max and {dr, dc} != {0, 0} do
     case [{r + dr, c + dc}] |> reject_out_of_bound(dim) do
       [] ->
         state
@@ -109,10 +102,10 @@ defmodule Aoc2023.Day17 do
     end
   end
 
-  def add_same_dir(state, _mat, _u, _dim, _lim), do: state
+  def add_same_dir(state, _mat, _u, _dim, _n_max), do: state
 
-  def add_all_dir(state, mat, u = {r, c, dr, dc, n}, dim, part)
-      when part == 1 or (part == 2 and n >= 4) or (part == 2 and {dr, dc} == {0, 0}) do
+  def add_all_dir(state, mat, u = {r, c, dr, dc, n}, dim, n_min)
+      when n >= n_min or {dr, dc} == {0, 0} do
     for {nr, nc} <-
           [{0, 1}, {1, 0}, {0, -1}, {-1, 0}]
           |> Enum.filter(fn {x, y} -> {x, y} != {dr, dc} and {x, y} != {-dr, -dc} end)
@@ -132,5 +125,5 @@ defmodule Aoc2023.Day17 do
     end
   end
 
-  def add_all_dir(state, _mat, _u, _dim, _part), do: state
+  def add_all_dir(state, _mat, _u, _dim, _n_min), do: state
 end
