@@ -35,5 +35,4 @@ defmodule Aoc2023 do
     {map |> Map.keys() |> Enum.map(fn {r, _} -> r end) |> Enum.max(),
      map |> Map.keys() |> Enum.map(fn {_, c} -> c end) |> Enum.max()}
   end
-
 end
