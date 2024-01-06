@@ -166,7 +166,7 @@ defmodule Aoc2023.Day20 do
   def list_lcm([a, b]), do: Aoc2023.lcm(a, b)
 
   def list_lcm([a, b | rest]) do
-    k = Aoc2023.lcm(a, b)
+    k = Aoc2023.lcm(a, b)a
     list_lcm([k | rest])
   end
 end
