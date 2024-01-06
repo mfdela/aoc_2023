@@ -35,4 +35,7 @@ defmodule Aoc2023 do
     {map |> Map.keys() |> Enum.map(fn {r, _} -> r end) |> Enum.max(),
      map |> Map.keys() |> Enum.map(fn {_, c} -> c end) |> Enum.max()}
   end
+
+  def lcm(0, 0), do: 0
+  def lcm(a, b), do: div(a * b, Integer.gcd(a, b))
 end
