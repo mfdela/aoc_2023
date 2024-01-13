@@ -103,7 +103,6 @@ defmodule Aoc2023.Day20 do
 
   def propagate_signal([{from_module, signal, module} | rest_queue], global_state, fun, result, i)
       when is_map_key(global_state, module) do
-    # |> IO.inspect()
     {out_signal, new_state} =
       update_state(from_module, signal, global_state[module].type, global_state[module].state)
 
@@ -166,7 +165,7 @@ defmodule Aoc2023.Day20 do
   def list_lcm([a, b]), do: Aoc2023.lcm(a, b)
 
   def list_lcm([a, b | rest]) do
-    k = Aoc2023.lcm(a, b)a
+    k = Aoc2023.lcm(a, b)
     list_lcm([k | rest])
   end
 end
