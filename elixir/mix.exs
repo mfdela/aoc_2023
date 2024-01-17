@@ -21,7 +21,8 @@ defmodule Aoc2023.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:libgraph, "~> 0.16.0"}
+      {:libgraph, "~> 0.16.0"},
+      {:qex, "~> 0.5"}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
